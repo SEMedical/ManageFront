@@ -1,34 +1,30 @@
 <template>
   <div style="display: flex;align-items: center;margin-bottom: 20px;">
-    <span style="font-size:14px;font-weight:bold;color: rgb(123, 123, 123);">姓名 &nbsp;&nbsp;</span><el-input v-model="petNameFilter" @input="filterHandler" placeholder="搜索宠物姓名" style="display: flex;align-items: center;text-align: center;width:180px;box-shadow: 0 0px 1px rgba(66, 66, 66, 0.2);;"></el-input>
-    <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">品种 &nbsp;&nbsp;</span>
-    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petKindFilter" clearable placeholder="选择宠物种类">
-      <el-option label="猫" value="猫"></el-option>
-      <el-option label="狗" value="狗"></el-option>  
+	<span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">医生ID &nbsp;&nbsp;</span>
+	<el-input v-model="petNameFilter" @input="filterHandler" placeholder="搜索医生ID" style="display: flex;align-items: center;text-align: center;width:180px;box-shadow: 0 0px 1px rgba(66, 66, 66, 0.2);;"></el-input>
+    <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">姓名 &nbsp;&nbsp;</span>
+	<el-input v-model="petNameFilter" @input="filterHandler" placeholder="搜索医生姓名" style="display: flex;align-items: center;text-align: center;width:180px;box-shadow: 0 0px 1px rgba(66, 66, 66, 0.2);;"></el-input>
+    <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">科室 &nbsp;&nbsp;</span>
+    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petKindFilter" clearable placeholder="选择医生科室">
+      <el-option label="男" value="猫"></el-option>
+      <el-option label="女" value="狗"></el-option>  
   </el-select>
-  <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">健康状况 &nbsp;&nbsp;</span>
-    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petHealthFilter" clearable placeholder="选择健康状况">
+  <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">职位 &nbsp;&nbsp;</span>
+    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petHealthFilter" clearable placeholder="选择医生职位">
       <el-option label="充满活力" value="充满活力"></el-option>  
       <el-option label="健康" value="健康"></el-option>
       <el-option label="不健康" value="不健康"></el-option>  
   </el-select>
-  <span style="font-size:15px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">接种情况 &nbsp;&nbsp;</span>
-    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petVaccineFilter" clearable placeholder="选择接种情况">
-      <el-option label="已接种" value="已接种"></el-option>  
-      <el-option label="未接种" value="未接种"></el-option>
-  </el-select>
 </div>
     <el-table :data="tableData" style="width: 100%;box-shadow: 0 0px 4px rgba(66, 66, 66, 0.2);border-radius: 10px;" max-height="530">
-      <el-table-column label="宠物ID" prop="id"  align="center"></el-table-column>
-      <el-table-column label="宠物名" prop="petname" align="center"></el-table-column>
-      <el-table-column label="种类" prop="breed"  align="center"></el-table-column>
-      <el-table-column label="年龄" prop="age"  align="center"></el-table-column>
+      <el-table-column label="医生ID" prop="id"  align="center"></el-table-column>
+      <el-table-column label="姓名" prop="petname" align="center"></el-table-column>
+      <el-table-column label="照片" prop="breed"  align="center"></el-table-column>
+      <el-table-column label="出生日期" prop="age"  align="center"></el-table-column>
       <el-table-column label="性别" prop="sex"  align="center"></el-table-column>
-      <el-table-column label="体型" prop="size"  align="center"></el-table-column>
-      <el-table-column label="人气" prop="popularity"  align="center"></el-table-column>
-      <el-table-column label="健康状况" prop="health"  align="center"></el-table-column>
-      <el-table-column label="疫苗状况" prop="vaccine"  align="center"></el-table-column>
-      <el-table-column label="来源" prop="from" align="center"></el-table-column>
+      <el-table-column label="职位" prop="size"  align="center"></el-table-column>
+      <el-table-column label="科室" prop="popularity"  align="center"></el-table-column>
+      <el-table-column label="状态" prop="health"  align="center"></el-table-column>
 <el-table-column label="操作" width="200" align="center">
   <template #default="scope">
     <el-button plain type="primary" size="small" @click.prevent="editRow(scope.$index)">
@@ -47,16 +43,16 @@
 </el-table-column>
     </el-table>
     <br/>
-    <el-button type="primary" @click="addRow">添加宠物</el-button>
+    <el-button type="primary" @click="addRow">添加医生</el-button>
 
     <!-- Edit Doctor Dialog -->
-    <el-dialog v-model="editDialogVisible" title="编辑宠物信息" @close="editDialogInvisible">
+    <el-dialog v-model="editDialogVisible" title="编辑医生信息" @close="editDialogInvisible">
       <el-form :model="editedPet" label-width="80px">
         <!-- 表单内容 -->
-        <el-form-item label="宠物名">
+        <el-form-item label="姓名">
           <el-input v-model="editedPet.petname"></el-input>
         </el-form-item>
-        <el-form-item label="健康状况">
+        <el-form-item label="出生日期">
           <el-select v-model="editedPet.health">
             <el-option label="充满活力" value="充满活力"></el-option>
             <el-option label="健康" value="健康"></el-option>
@@ -66,16 +62,16 @@
             <el-option label="危急" value="危急"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="疫苗状况">
+        <el-form-item label="性别">
           <el-select v-model="editedPet.vaccine">
             <el-option label="已接种" value="已接种"></el-option>
             <el-option label="未接种" value="未接种"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="原图片">
+        <el-form-item label="原照片">
           <img :src = "editedPet.avatar" style="max-width: 148px; max-height: 148px; border-radius: 5%;" alt="原图片">
         </el-form-item>
-        <el-form-item label="新图片(若新图片为空，保留原图)">
+        <el-form-item label="新照片(若新照片为空，保留原图)">
           <el-upload
             :http-request="httpRequest"
             multiple
@@ -96,16 +92,16 @@
     </el-dialog>
 
     <!-- Add Doctor Dialog -->
-    <el-dialog v-model="addDialogVisible" title="添加宠物信息" @close="addDialogInvisible">
+    <el-dialog v-model="addDialogVisible" title="添加医生信息" @close="addDialogInvisible">
       <el-form :model="newPet" label-width="80px">
         <!-- 表单内容 -->
-        <el-form-item label="宠物名">
+        <el-form-item label="姓名">
           <el-input v-model="newPet.petname"></el-input>
         </el-form-item>
-        <el-form-item label="种类">
+        <el-form-item label="性别">
           <el-select v-model="newPet.breed">
-            <el-option label="猫" value="猫"></el-option>
-            <el-option label="狗" value="狗"></el-option>
+            <el-option label="男" value="猫"></el-option>
+            <el-option label="女" value="狗"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="年龄">
