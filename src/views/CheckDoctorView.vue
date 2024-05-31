@@ -1,199 +1,335 @@
 <template>
-<div class="title">
-        <el-row>
-            <el-col :span="15">
-            <div class="forum-title title-with-line" >
-                审核专业医生认证
-            </div>
-     
-         </el-col>
-
-            <el-col :span="4">
-                <img src="../assets/8.png "  style="height: 150px">
-            </el-col>
-        
-            </el-row>
-        </div>
-
-    <div class="bodyTable">
-    <el-tabs
-        v-model="type_sort.type"
-        
-        @tab-click="sortSwitcher">
-        <el-tab-pane  label="未审核" name="unchecked"> </el-tab-pane>
-        <el-tab-pane  label="已审核" name="checked"> </el-tab-pane>
-             
-    </el-tabs>
-
-    
-
-    <el-table :data="apply_list" border style="width: 100%" height="400" empty-text="暂无医生">
-        
-        <el-table-column label="申请用户" width="200" align="center">
-            <template #default="scope">
-                <UserInfoCardSmall :avatar-url="scope.row.user_portrait" :user-name="scope.row.user_name" :user-id="scope.row.user_id"></UserInfoCardSmall>
-            </template>
-        </el-table-column>
-
-        
-        <el-table-column label="申请时间" width="200" align="center" >
-            <template #default="scope">
-                <div>{{ scope.row.submit_time }}</div>
-            </template>
-        </el-table-column>
-
-        <el-table-column v-if="type_sort.type=='checked'" width="200" label="审核管理员ID" align="center">
-            <template #default="scope">
-                {{ scope.row.administrator_id }}
-            </template>
-        </el-table-column>
-
-        <el-table-column v-if="type_sort.type=='checked'" width="200" label="审核结果及时间" align="center">
-            <template #default="scope">
-                 <div v-if="scope.row.review_status=='1'" style="color: #118407a5;">
-                    通过
-                 </div>
-                 <div v-else style="color: #fe0000a5;">
-                    不通过
-                 </div>
-                 <div>
-                    {{ scope.row.review_time }}
-                </div>
-            </template>
-        </el-table-column>
-        
-    
-        
-        <el-table-column  label="操作" align="center">
-            <template #default="scope">
-                <FancyButton v-if="type_sort.type==='unchecked'" @click="check(scope.row)">去审核</FancyButton>
-                <FancyButton v-else @click="check(scope.row)">查看详情</FancyButton>
-            </template>
-        </el-table-column>
-       
-
-    </el-table>
-    </div>
-
-
-    <el-dialog
-        v-model="checkDialogVisible"
-         
-        align-center
-        title="审核专业医生认证"
-        width="70%"
-        top="0"
-        class="checkform"
+  <div style="display: flex;align-items: center;margin-bottom: 20px;">
+    <span style="font-size:14px;font-weight:bold;color: rgb(123, 123, 123);">姓名 &nbsp;&nbsp;</span><el-input v-model="petNameFilter" @input="filterHandler" placeholder="搜索宠物姓名" style="display: flex;align-items: center;text-align: center;width:180px;box-shadow: 0 0px 1px rgba(66, 66, 66, 0.2);;"></el-input>
+    <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">品种 &nbsp;&nbsp;</span>
+    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petKindFilter" clearable placeholder="选择宠物种类">
+      <el-option label="猫" value="猫"></el-option>
+      <el-option label="狗" value="狗"></el-option>  
+  </el-select>
+  <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">健康状况 &nbsp;&nbsp;</span>
+    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petHealthFilter" clearable placeholder="选择健康状况">
+      <el-option label="充满活力" value="充满活力"></el-option>  
+      <el-option label="健康" value="健康"></el-option>
+      <el-option label="不健康" value="不健康"></el-option>  
+  </el-select>
+  <span style="font-size:15px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">接种情况 &nbsp;&nbsp;</span>
+    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="petVaccineFilter" clearable placeholder="选择接种情况">
+      <el-option label="已接种" value="已接种"></el-option>  
+      <el-option label="未接种" value="未接种"></el-option>
+  </el-select>
+</div>
+    <el-table :data="tableData" style="width: 100%;box-shadow: 0 0px 4px rgba(66, 66, 66, 0.2);border-radius: 10px;" max-height="530">
+      <el-table-column label="宠物ID" prop="id"  align="center"></el-table-column>
+      <el-table-column label="宠物名" prop="petname" align="center"></el-table-column>
+      <el-table-column label="种类" prop="breed"  align="center"></el-table-column>
+      <el-table-column label="年龄" prop="age"  align="center"></el-table-column>
+      <el-table-column label="性别" prop="sex"  align="center"></el-table-column>
+      <el-table-column label="体型" prop="size"  align="center"></el-table-column>
+      <el-table-column label="人气" prop="popularity"  align="center"></el-table-column>
+      <el-table-column label="健康状况" prop="health"  align="center"></el-table-column>
+      <el-table-column label="疫苗状况" prop="vaccine"  align="center"></el-table-column>
+      <el-table-column label="来源" prop="from" align="center"></el-table-column>
+<el-table-column label="操作" width="200" align="center">
+  <template #default="scope">
+    <el-button plain type="primary" size="small" @click.prevent="editRow(scope.$index)">
+      编辑
+    </el-button>
+    <el-button
+      plain
+      type="danger"
+      size="small"
+      @click.prevent="deleteRow(scope.$index)"
+      v-if="scope.row.from === '流浪'"
     >
-        <CheckDoctorForm v-if="checkDialogVisible" :applydoctor_info="selected_applydoctor" :is_checked="type_sort.type=='checked'" @refresh="display" @close-me="checkDialogVisible=false"/>
+      删除
+    </el-button>
+  </template>
+</el-table-column>
+    </el-table>
+    <br/>
+    <el-button type="primary" @click="addRow">添加宠物</el-button>
+
+    <!-- Edit Doctor Dialog -->
+    <el-dialog v-model="editDialogVisible" title="编辑宠物信息" @close="editDialogInvisible">
+      <el-form :model="editedPet" label-width="80px">
+        <!-- 表单内容 -->
+        <el-form-item label="宠物名">
+          <el-input v-model="editedPet.petname"></el-input>
+        </el-form-item>
+        <el-form-item label="健康状况">
+          <el-select v-model="editedPet.health">
+            <el-option label="充满活力" value="充满活力"></el-option>
+            <el-option label="健康" value="健康"></el-option>
+            <el-option label="尚可" value="尚可"></el-option>
+            <el-option label="不健康" value="不健康"></el-option>
+            <el-option label="生病" value="生病"></el-option>
+            <el-option label="危急" value="危急"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="疫苗状况">
+          <el-select v-model="editedPet.vaccine">
+            <el-option label="已接种" value="已接种"></el-option>
+            <el-option label="未接种" value="未接种"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="原图片">
+          <img :src = "editedPet.avatar" style="max-width: 148px; max-height: 148px; border-radius: 5%;" alt="原图片">
+        </el-form-item>
+        <el-form-item label="新图片(若新图片为空，保留原图)">
+          <el-upload
+            :http-request="httpRequest"
+            multiple
+            :limit="1"
+            :show-file-list="true"
+            list-type="picture-card"
+            :class="{hide:hideUpload}"
+            :on-change="handleEditChange"
+            :on-remove="handleRemove"
+        ><el-icon><Plus /></el-icon>
+        </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editDialogInvisible">取消</el-button>
+        <el-button type="primary" @click="submitEditedPet">保存</el-button>
+      </div>
     </el-dialog>
 
+    <!-- Add Doctor Dialog -->
+    <el-dialog v-model="addDialogVisible" title="添加宠物信息" @close="addDialogInvisible">
+      <el-form :model="newPet" label-width="80px">
+        <!-- 表单内容 -->
+        <el-form-item label="宠物名">
+          <el-input v-model="newPet.petname"></el-input>
+        </el-form-item>
+        <el-form-item label="种类">
+          <el-select v-model="newPet.breed">
+            <el-option label="猫" value="猫"></el-option>
+            <el-option label="狗" value="狗"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="年龄">
+          <el-input-number v-model="newPet.age" :min="0" :max="100"></el-input-number>
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-select v-model="newPet.sex">
+            <el-option label="公" value="公"></el-option>
+            <el-option label="母" value="母"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="体型">
+          <el-select v-model="newPet.size">
+            <el-option label="小型" value="小型"></el-option>
+            <el-option label="中型" value="中型"></el-option>
+            <el-option label="大型" value="大型"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="健康状况">
+          <el-select v-model="newPet.health">
+            <el-option label="充满活力" value="充满活力"></el-option>
+            <el-option label="健康" value="健康"></el-option>
+            <el-option label="尚可" value="尚可"></el-option>
+            <el-option label="不健康" value="不健康"></el-option>
+            <el-option label="生病" value="生病"></el-option>
+            <el-option label="危急" value="危急"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="疫苗状况">
+          <el-select v-model="newPet.vaccine">
+            <el-option label="已接种" value="已接种"></el-option>
+            <el-option label="未接种" value="未接种"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addDialogInvisible">取消</el-button>
+        <el-button type="primary" @click="submitNewPet">添加</el-button>
+      </div>
+    </el-dialog>
 </template>
 
-
-<script>
-import axios from "axios"; 
-import CheckDoctorForm from "../components/checkView/CheckDoctorForm.vue"
-import FancyButton from "@/components/FancyButton.vue";
-import UserInfoCardSmall from "@/components/UserInfoCardSmall.vue";
-export default{
-
-    components:
-        {
-            UserInfoCardSmall,
-            FancyButton,
-            CheckDoctorForm
-        },
-    data:()=>({
-        type_sort:{type:"unchecked"},
-        
-        apply_list:[],
-        checkDialogVisible:false,
-        selected_applydoctor:{}
-    }),
-    methods:
-    {
-        check(applydoctor_info){
-            axios.post("/api/Check/Doctor/Detail",{apply_id:applydoctor_info.apply_id})
-            .then((res)=> {
-                applydoctor_info.certification=res.data.data.certification;    
-                applydoctor_info.license=res.data.data.license; 
-                applydoctor_info.title=res.data.data.title; 
-                applydoctor_info.department=res.data.data.department; 
-                applydoctor_info.hospital_rank=res.data.data.hospital_rank; 
-            })
-            .then(()=>{
-                
-                this.selected_applydoctor=applydoctor_info;
-                console.log(applydoctor_info)
-                this.checkDialogVisible=true;
-            })
-
-           
-        },
- 
-        sortSwitcher(res){
-            if(res.paneName==this.type_sort.type){
-                return;
-            }
-            this.type_sort.type=res.paneName;
-            this.display();
-        },
-        display(){
-            axios
-                .post("/api/Check/Doctor/SortBy", this.type_sort)
-                .then((res)=> {
-                    this.apply_list= res.data.data.apply_list;
-                     
-                })
-
-        },
-    },
-    created(){
-        this.display();
-    }
-
+<style>
+.hide .el-upload--picture-card {
+    display: none;
 }
-</script>
-
-
-<style scoped>
-
-
-.title {
-    font-size: xx-large;
-   margin-left: 10%;
-   margin-top:5%;
-   font-weight: bold;
-}
-
-.forum-title {
-    position: relative;
-}
-
-.title-with-line:before{
-    content:"";
-    top:50%;
-    width: 1px;
-    height: 1.2em;
-    display: inline-block;
-    position: absolute;
-    background-color: var(--el-color-primary);
-    border: 1px solid var(--el-color-primary);
-    border-radius: 2px;
-    transform: translate(-16px , -50%);
-}
-.bodyTable{
-    width: 85%;
-    margin: 5% auto 0 auto;
-}
-
-.container svg:hover {
-    transform: scale(1.1);
-}
-
-.container input:checked ~ svg {
-    fill: RGB(253, 190, 45);
-}
-
 </style>
+
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Delete, Plus } from '@element-plus/icons-vue'
+//import petcard from '@/api/cw_yh_yl_jk'
+
+
+interface Pet {
+  id: string;
+  petname: string;
+  breed: string;
+  age: int;
+  sex: string;
+  size: string;
+  popularity: string;
+  health: string;
+  vaccine: string;
+  from: string;
+}
+
+//以下部分和传图有关
+const fileList = ref([])
+const limitNum = 1;
+const hideUpload = ref(false);
+
+function httpRequest(option) {
+    fileList.value.push(option);
+}
+
+function handleEditChange(file,fileList){
+  hideUpload.value = fileList.length >= 1;
+}
+
+function handleRemove(file,fileList){
+  hideUpload.value = fileList.length >= 1;
+}
+
+const tableData = ref([]);
+const tableData2= ref([]);
+const editDialogVisible = ref(false);
+const addDialogVisible = ref(false);
+const petNameFilter = ref('');
+const petKindFilter = ref('');
+const petHealthFilter = ref('');
+const petVaccineFilter = ref('');
+function filterHandler(value){
+    tableData.value = tableData2.value.filter(item => {
+    const petnameMatch = item.petname.toLowerCase().includes(petNameFilter.value.toLowerCase());
+    const kindMatch = item.breed === petKindFilter.value || !petKindFilter.value;
+    const healthMatch=item.health===petHealthFilter.value||!petHealthFilter.value
+    const vaccineMatch=item.vaccine===petVaccineFilter.value||!petVaccineFilter.value
+    return petnameMatch && kindMatch&&healthMatch&&vaccineMatch;
+  });
+};
+
+
+const editDialogInvisible = async() => {
+  editDialogVisible.value = false;//和接口的连接在dialog里
+  console.log("输出图片列表1");
+  console.log(fileList.value);
+  location.reload(); // 这里会刷新整个页面
+
+};
+
+const addDialogInvisible = async() => {
+  addDialogVisible.value = false;//和接口的连接在dialog里
+  location.reload(); // 这里会刷新整个页面
+};
+
+const editedPet = ref<Pet>({
+  id: '',
+  petname: '',
+  health: '',
+  vaccine: '',
+  image:'',
+});
+
+const newPet = ref<Pet>({
+  petname: '',
+  breed: '猫',
+  age: 0,
+  sex: '公',
+  size: '小型',
+  health: '充满活力',
+  vaccine: '未接种',
+});
+
+const getPetList = async () => {
+    try {
+        const response = await petcard.getPetList();
+        console.log(response);
+        const uniquePets = {};
+        for (const adoptpet of response) {
+            if (!uniquePets[adoptpet.PET_ID]) {
+                uniquePets[adoptpet.PET_ID] = true;
+                console.log(adoptpet.PET_NAME);
+                tableData.value.push({
+                    id: adoptpet.PET_ID,
+                    petname: adoptpet.PET_NAME,
+                    breed: adoptpet.SPECIES,
+                    age: adoptpet.AGE,
+                    sex: adoptpet.SEX,
+                    size: adoptpet.PSIZE,
+                    popularity: adoptpet.POPULARITY,
+                    health: adoptpet.HEALTH_STATE,
+                    vaccine: adoptpet.VACCINE,
+                    from: adoptpet.SOURCE,
+                    avatar: adoptpet.AVATAR,
+                });
+            }
+        }
+        tableData2.value=tableData.value
+    } catch (error) {
+        console.error('获取所有宠物数据时出错：', error);
+    }
+};
+
+onMounted(() => {
+  getPetList();
+});
+
+const addRow = () => {
+  addDialogVisible.value = true;//和接口的连接在dialog里
+};
+
+const editRow = (index) => {
+  editedPet.value = {
+    id: tableData.value[index].id,
+    petname: tableData.value[index].petname,
+    health: tableData.value[index].health,
+    vaccine: tableData.value[index].vaccine,
+    avatar: tableData.value[index].avatar,
+  };
+  editDialogVisible.value = true;//和接口的连接在dialog里
+};
+
+const deleteRow = async (index: number) => {
+  try {
+      await petcard.deletePet(tableData.value[index].id);
+      location.reload(); // 这里会刷新整个页面
+    } catch (error) {
+      console.error('删除数据失败：', error);
+    }
+};
+
+const submitNewPet = async() => {
+  try {
+      await petcard.addPet(newPet.value);//注意：需保证id不能被修改
+      location.reload(); // 这里会刷新整个页面
+    } catch (error) {
+      console.error('添加数据失败：', error);
+    }
+};
+
+const submitEditedPet = async () => {
+    if (!editedPet.value.petname){
+      ElMessage({
+          type: 'warning',
+          message: '宠物名不能为空',
+        })
+    }else{
+    try {
+        let param = new FormData();
+        param.append('id', editedPet.value.id);
+        param.append('petname', editedPet.value.petname);
+        param.append('health', editedPet.value.health);
+        param.append('vaccine', editedPet.value.vaccine);
+        fileList.value.forEach((it, index) => {
+            param.append('filename', it.file);
+        });
+        await petcard.editPet(param);
+        location.reload();
+    } catch (error) {
+      console.error('编辑数据失败：', error);
+    }
+  }
+};
+
+</script>

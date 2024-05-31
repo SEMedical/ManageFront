@@ -45,10 +45,6 @@ const router = createRouter({
                     component: () => import("@/views/AdministratorInfoView.vue")
                 }
             ]
-        },{
-            path: "/test",
-            name: "test",
-            component: () => import ("@/components/postView/TipTapEditable.vue")
         },
         { path: '/:pathMatch(.*)*', name: 'NotFound', component: ()=>import("@/pages/ErrorPage.vue") },
 

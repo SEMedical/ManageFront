@@ -45,12 +45,7 @@ const avatarClicked = () =>{
 
 const menus = [
     {"title":"个人信息","icon":"fi-rr-user-gear","path":"/adminiInfo"},
-    {
-        "title":"审核","icon":"fi-rr-memo-circle-check","path":"censorSubMenu",
-        "children":[
-            {"title":"专业医生资质审核","icon":"fi-rr-badge","path":"/qualificationVerify"},
-        ]
-    },
+    {"title":"审核","icon":"fi-rr-memo-circle-check","path":"/qualificationVerify"},
 ];
 
 let userInfo = reactive({
