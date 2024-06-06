@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+		"target": "ES5",
+		"lib": ["ES2015", "DOM"], // 添加所需的库 
+        "baseUrl": "./",
+        "paths": {
+            "@/*":[
+                "src/*"
+            ]
+        }
+    }
+}
