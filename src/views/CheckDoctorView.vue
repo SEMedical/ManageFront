@@ -16,9 +16,14 @@
       <el-option label="主治医师" value="主治医师"></el-option>  
 	  <el-option label="住院医师" value="住院医师"></el-option>  
   </el-select>
+  <span style="font-size:14px;margin-left:25px;font-weight:bold;color: rgb(123, 123, 123);">状态 &nbsp;&nbsp;</span>
+    <el-select @change="filterHandler" style="width:180px;display: flex;align-items: center;text-align: center;" v-model="stateFilter" clearable placeholder="选择医生状态">
+      <el-option label="正常" value="正常"></el-option>  
+      <el-option label="注销" value="注销"></el-option> 
+  </el-select>
 </div>
     <el-table :data="tableData" style="width: 100%;box-shadow: 0 0px 4px rgba(66, 66, 66, 0.2);border-radius: 10px;" max-height="530">
-      <el-table-column label="医生ID" prop="id"  align="center"></el-table-column>
+      <el-table-column label="医生ID" prop="doctorId"  align="center"></el-table-column>
       <el-table-column label="姓名" prop="name" align="center"></el-table-column>
       <el-table-column label="照片" prop="avatar"  align="center"></el-table-column>
       <el-table-column label="身份证号" prop="idCard"  align="center"></el-table-column>
@@ -159,8 +164,8 @@ import { Plus } from '@element-plus/icons-vue';
 import { getAccountList, addAccount, editAccount } from '@/api/admin';
 
 
-interface Doctor {
-  id: string;
+interface DoctorClass {
+  doctorId: int;//传来的id值是int型的
   name: string;
   avatar:string;
   idCard: string;
@@ -194,13 +199,15 @@ const idFilter = ref('');
 const nameFilter = ref('');
 const departmentFilter = ref('');
 const titleFilter = ref('');
+const stateFilter = ref('');
 function filterHandler(value){
     tableData.value = tableDataNoFilt.value.filter(item => {
-	const idMatch = item.id === idFilter.value || !idFilter.value;
+	  const idMatch = item.doctorId.toString() === idFilter.value || !idFilter.value;//比对的时候需将字符串转成数字
     const nameMatch = item.name === nameFilter.value || !nameFilter.value;
     const departmentMatch=item.department===departmentFilter.value||!departmentFilter.value;
     const titleMatch=item.title===titleFilter.value||!titleFilter.value
-    return idMatch && nameMatch && departmentMatch && titleMatch;
+	const stateMatch=item.state===stateFilter.value||!stateFilter.value
+    return idMatch && nameMatch && departmentMatch && titleMatch && stateMatch;
   });
 };
 
@@ -218,7 +225,8 @@ const addDialogInvisible = async() => {
   location.reload(); // 这里会刷新整个页面
 };
 
-const editedDoctor = ref<Doctor>({
+const editedDoctor = ref<DoctorClass>({
+  doctorId: -1,
   name: '',
   idCard: '',
   contact: '',
@@ -227,7 +235,7 @@ const editedDoctor = ref<Doctor>({
   state:'',
 });
 
-const newDoctor = ref<Doctor>({
+const newDoctor = ref<DoctorClass>({
   name: '',
   idCard: '',
   contact: '',
@@ -238,10 +246,10 @@ const newDoctor = ref<Doctor>({
 
 const getDoctorList = async () => {
     try {
-        const response = await getAccountList();
-        for (const doctor of response.response) {
+        const response = await getAccountList();//这两个不能重名
+        for (const doctor of response) {
 			tableDataNoFilt.value.push({
-				id: doctor.doctorId,
+				doctorId: doctor.doctorId,
 				name: doctor.name,
 				avatar: doctor.photoPath,
 				idCard: doctor.idCard,
@@ -270,6 +278,7 @@ const addRow = () => {
 
 const editRow = (index) => {
   editedDoctor.value = {
+    doctorId: tableData.value[index].doctorId,
     name: tableData.value[index].name,
     idCard: tableData.value[index].idCard,
     contact: tableData.value[index].contact,
@@ -298,6 +307,7 @@ const submitEditedDoctor = async () => {
     }else{
     try {
         let param = new FormData();
+        param.append('doctorId', editedDoctor.value.doctorId);//编辑界面不显示id，但是要传id值
         param.append('name', editedDoctor.value.name);
         param.append('idCard', editedDoctor.value.idCard);
         param.append('contact', editedDoctor.value.contact);

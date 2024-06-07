@@ -1,82 +1,39 @@
 <template>
   <!--整个页面是可以上下滚动的-->
   <div  class="wrapper">
-    <!--展示信息的分栏，分栏1：管理员头像-->
     <div>
-      <el-card class="cardStyle">
-        <div class="common-layout">
-          <el-container>
-            <el-aside width="200px">
-              <div class="avatar-container">
-                <el-avatar :size="100" style="margin-left:30px;margin-top:20px;" fit="contain" :src="isLogin ? administrator.portrait :require('/src/assets/defaultAvatar.png')"></el-avatar>
-                <template v-if="isCurrentAdministrator">
-                  <el-button class="pic-edit-button" type="primary" icon="el-icon-edit" @click="showPhotoUpload">Edit</el-button>
-                  <el-dialog v-model="photoUpload" title="头像上传" width="50%">
-                    <div style="text-align: center;">
-                      <p>请上传头像</p>
-                      <el-upload
-                          class="upload-demo"
-                          action="https://jsonplaceholder.typicode.com/posts/"
-                          :auto-upload="false"
-                          :on-change="handleChange"
-                          accept="image/jpg,image/jpeg,image/png,image/gif"
-                          :multiple="false"
-                          :file-list="fileList"
-                      >
-                        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                        <div slot="tip" class="el-upload__tip">上传文件格式为.jpg、.jpeg、.png、.gif，且不超过 2MB</div>
-                      </el-upload>
-                    </div>
-                    <div slot="footer" class="dialog-footer">
-                      <el-button @click="photoUpload = false">取 消</el-button>
-                      <el-button type="primary" @click="submitPhoto">确 定</el-button>
-                    </div>
-                  </el-dialog>
-                </template>
-              </div>
-            </el-aside>
-            <el-main>
-              <span class="userName">{{ displayName }}</span>
-              <el-button v-if="!isLogin" class="login-button" type="primary" @click="goToLoginPage">请登录</el-button>
-              <br><br><br>
-            </el-main>
-          </el-container>
-        </div>
-      </el-card>
-    </div>
-    <!--展示信息的分栏，分栏2：基本信息-->
-    <div v-if="isLogin">
       <el-card class="cardStyle">
         <el-descriptions
             class="margin-top"
             title="基本信息"
             :column="3"
             :size="size"
-            border
-        >
-          <template #extra v-if="isCurrentAdministrator">
+            border>
+          <template #extra>
             <!--点“编辑”按钮可以对管理员信息进行编辑-->
             <el-button type="primary"  v-if="!isEdit" @click="edit">编辑</el-button>
             <el-button type="primary" v-if="isEdit" @click="save">保存</el-button>
           </template>
-          <template v-if="isAdministrator">
+          <template>
             <el-descriptions-item>
               <template #label>
                 <div class="cell-item">
-                  工号：
+                  管理员ID：
                 </div>
               </template>
               <!--从数据库获取管理员的工号-->
-                  <span class="idStyle">{{administrator.id}}</span>
+                  <span class="idStyle">{{ admin.adminId }}</span>
             </el-descriptions-item>
             <el-descriptions-item>
               <template #label>
                 <div class="cell-item">
-                  名称：
+                  姓名：
                 </div>
               </template>
-              <!--从数据库获取管理员的名称-->
-                <span class="idStyle">{{administrator.name}}</span>
+            <!-- 在编辑模式下显示输入框 -->
+            <el-input v-if="isEdit" v-model="editedAdmin.name" />
+            <!-- 非编辑模式下显示文本 -->
+            <span v-else class="idStyle">{{ admin.name }}</span>
             </el-descriptions-item>
             <el-descriptions-item>
               <template #label>
@@ -84,17 +41,10 @@
                   联系方式：
                 </div>
               </template>
-              <!--从数据库获取管理员的联系方式-->
-                <span class="idStyle">{{administrator.telephone}}</span>
-            </el-descriptions-item>
-            <el-descriptions-item>
-              <template #label>
-                <div class="cell-item">
-                  邮箱：
-                </div>
-              </template>
-              <!--从数据库获取管理员的邮箱-->
-              <el-input v-model="administrator.email" :disabled="!isEdit"></el-input>
+            <!-- 在编辑模式下显示输入框 -->
+            <el-input v-if="isEdit" v-model="editedAdmin.contact" />
+            <!-- 非编辑模式下显示文本 -->
+            <span v-else class="idStyle">{{ admin.contact }}</span>
             </el-descriptions-item>
           </template>
         </el-descriptions>
@@ -105,141 +55,84 @@
 
 </template>
 
-<script>
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
 import { ElMessage } from "element-plus";
-import axios from "axios"
-import globalData from "@/global/global"
-export default {
-  name: "AdministratorInfoView",
+import { getAdminInfo, editAdminInfo } from '@/api/admin';
+const isEdit = ref(false); // 编辑状态
+const size = ref('small'); // 描述组件的尺寸
 
-  data(){
-    return{
-      isAdministrator: true, //是否为管理员
-      administrator: {},    //管理员信息
-      isLogin :true,    //初始状态未登录
-      isEdit:false, //是否允许编辑信息
-      dialogVisible:false,    //对话框是否可见
-      size:'small',
-      file:null, //上传的文件对象
-      fileList: [],
-      photoUpload:false,   //头像上传，初始为false
-      userPosts: []   // 用户上传的帖子
-    }
-  },
-  mounted() {
-    let administratorID = parseInt(this.$route.params.administratorID ? this.$route.params.administratorID: 0);
-    if(isNaN(administratorID)){
-      this.$router.replace("/error");
-      return;
-    }
-    axios.get('/api/Administrator/Details')
-        .then(response => {
-          const responseData = response.data.data.administrator;
-          this.administrator = responseData
-        })
-        .catch(error => {
-            if(error.network) return;
-            switch (error.errorCode){
-                case 103:
-                    break;
-                default:
-                    error.defaultHandler("获取登录状态出错")
-            }
-        });
-  },
-  computed: {
-    displayName() {
-      if(this.isLogin) {
-        return this.administrator.name;
-      } else {
-        return '未登录';
-      }
-    },
-    //判断是否是本人在查看信息页面，来判断该管理员是否可对信息进行修改
-    isCurrentAdministrator() {
-      return !this.$route.params.administratorID;
-    }
-  },
-  methods:{
-    showPhotoUpload(){
-      //显示上传头像框
-      this.photoUpload = true;
-    },
-    /*跳转到登陆界面*/
-    goToLoginPage(){
-      this.$router.push('login')
-    },
-    edit(){
-      this.isEdit = true;
-    },
-    save(){
-      // 将修改后的管理员信息保存到数据库
-      axios
-          .post('/api/Administrator/modifyAdministratorInfo',{email: this.administrator.email})
-          .then(response => {
-            // 保存成功后将isEdit变量设置为false，禁用编辑模式
-                let user_info={
-                  //工号，名称，联系方式，邮箱
-                  email:this.administrator.email,
-                };
-                if(response.data.data.status == true){
-                  ElMessage({
-                    type: "success",
-                    message: "修改成功！",
-                    duration: 2000,
-                    showClose: true,
-                  });
-                    this.isEdit = false;
-                  //store.commit("changePersonInfo", user_info);
-                } else {
-                  ElMessage({
-                    type: "error",
-                    message: "修改失败！",
-                    duration: 2000,
-                    showClose: true,
-                  });
-                }
-          })
-          .catch((error) => {
-            this.isEdit = false;
-            console.error(error);
-          });
-    },
-    handleChange(file,fileList){
-      if (fileList.length > 1) {
-        fileList.splice(0, fileList.length - 1); // 只保留最后一个文件
-      }
-      console.log(file,fileList);
-      this.file = file.raw
-    },
-    /*将管理员上传的头像传给后端数据库*/
-    submitPhoto(){
-      // 创建一个 FormData 对象
-      const formData = new FormData();
-      formData.append('file', this.file);
-      // 发起一个 POST 请求，将 formData 发送给后端服务器
-      axios.post("/api/UserInfo/uploadAvatar", formData)
-          .then(response => {
-            console.log(response.data);
-            if(response.data.data.status == true){
-              ElMessage.success("更改成功！");
-              this.photoUpload = false;
-              this.administrator.portrait = response.data.data.url;
-              globalData.userInfo.avatar_url = response.data.data.url;
-              location.reload()
-            }
-            else{
-              ElMessage.error("更改失败！");
-            }
-          })
-          .catch(error => {
-            console.error(error);
-            ElMessage.error("更改失败！");
-          });
-    },
-  }
+interface AdminClass {
+  adminId: int;//传来的id值是int型的
+  name: string;
+  contact: string;
 }
 
+const admin = ref<AdminClass>({
+  adminId: -1,
+  name: '',
+  contact: '',
+});
+
+const editedAdmin = ref<AdminClass>({
+  adminId: -1,
+  name: '',
+  contact: '',
+});
+
+const fetchAdminInfo = async () => {
+    try {
+        const response = await getAdminInfo();
+        admin.value = {
+          adminId: response.adminId,
+          name: response.name,
+          contact: response.contact,
+        };
+		console.log('admin', admin.value);
+    } catch (error) {
+        console.error('aaa获取管理员信息失败：', error);
+    }
+};
+
+onMounted(() => {
+  fetchAdminInfo();
+});
+
+const edit = () => {
+  isEdit.value = true;
+  editedAdmin.value = { ...admin.value };
+};
+
+const save = async () => {
+  await submitEditedAdmin();
+  isEdit.value = false;
+};
+
+const submitEditedAdmin = async () => {
+    if (!editedAdmin.value.name){
+      ElMessage({
+          type: 'warning',
+          message: '管理员名不能为空',
+        })
+    } else if (!editedAdmin.value.contact){
+      ElMessage({
+          type: 'warning',
+          message: '联系方式不能为空',
+        })
+    } else {
+    try {
+      const param = {
+        adminId: editedAdmin.value.adminId,
+        name: editedAdmin.value.name,
+        contact: editedAdmin.value.contact,
+      };
+      await editAdminInfo(param);
+      //location.reload();//查看返回值的时候先注释掉
+    } catch (error) {
+      console.error('编辑管理员信息失败：', error);
+    }
+  }
+};
 </script>
 
 <style scoped>

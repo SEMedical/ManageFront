@@ -16,10 +16,6 @@ const router = createRouter({
                     path: "register",
                     name: "registerView",
                     component: ()=>import("@/views/RegisterView.vue"),
-                }, {
-                    path: "forgot",
-                    name: "forgotView",
-                    component: ()=>import("@/views/ForgotView.vue"),
                 }
             ]
         },
@@ -38,10 +34,6 @@ const router = createRouter({
                 },{
                     path: "adminiInfo",
                     name: "myView",
-                    component: () => import("@/views/AdministratorInfoView.vue")
-                },{
-                    path: "adminiInfo/:administratorID",
-                    name: "otherView",
                     component: () => import("@/views/AdministratorInfoView.vue")
                 }
             ]

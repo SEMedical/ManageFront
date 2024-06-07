@@ -21,9 +21,6 @@
             <router-link to="/login/register">
                 <el-button type="primary" link>注册</el-button>
             </router-link>
-            <router-link to="/login/forgot">
-                <el-button type="primary" link>忘记密码?</el-button>
-            </router-link>
         </div>
         <div class="loginButtonHolder">
             <el-button type="primary" @click="login">登录</el-button>
@@ -86,8 +83,8 @@ const login = async () => {
 		  errorMsg.value = "登录失败";
 		  isError.value = true;
 		}
-        } 
-	};
+    } 
+};
 
 const clearErrorBorder = () =>{
 	isError.value = false;
