@@ -14,13 +14,14 @@ export const getAdminInfo = async () => {
 	}
 };
 
-export const editAdminInfo = async () => {
+export const editAdminInfo = async (adminInfo) => {
 	try {
 		const response = await request({
 			url: '/oa/editAdminInfo',
 			method: 'POST',
+			data: adminInfo,
 		});
-		console.log(response);
+		console.log('editAdminInfo', response.success);
 		return response.response;
 	} catch (error) {
 		console.error('编辑管理员信息失败:', error);
@@ -50,7 +51,7 @@ export const addAccount = async (newDoctor) => {
 			method: 'POST',
 			data: newDoctor,
 		});
-		console.log(response);
+		console.log('addAccount', response.success);
 		return response.response;
 	} catch (error) {
 		console.error('添加医生账户失败:', error);
@@ -65,7 +66,7 @@ export const editAccount = async (editedDoctor) => {
 			method: 'POST',
 			data: editedDoctor,
 		});
-		console.log(response);
+		console.log('editAccount', response.success);
 		return response.response;
 	} catch (error) {
 		console.error('编辑医生账户失败:', error);

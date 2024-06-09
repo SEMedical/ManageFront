@@ -164,10 +164,22 @@ import { Plus } from '@element-plus/icons-vue';
 import { getAccountList, addAccount, editAccount } from '@/api/admin';
 
 
-interface DoctorClass {
-  doctorId: int;//传来的id值是int型的
+//接口类的作用是定义对象的结构，确保对象符合特定的形状
+interface NewDoctorClass {
+  hospitalId: number;//这个不一定需要，先加着
   name: string;
   avatar:string;
+  idCard: string;
+  contact: string;
+  title: string;
+  department: string;
+  state: string;
+}
+
+interface EditedDoctorClass {
+  doctorId: number;//传来的id值是int型的，，number不一定是整数，这个问题以后解决
+  name: string;
+  avatar: string;
   idCard: string;
   contact: string;
   title: string;
@@ -225,23 +237,26 @@ const addDialogInvisible = async() => {
   location.reload(); // 这里会刷新整个页面
 };
 
-const editedDoctor = ref<DoctorClass>({
-  doctorId: -1,
+const newDoctor = ref<NewDoctorClass>({
+  hospitalId: -1,
   name: '',
-  idCard: '',
-  contact: '',
-  department:'',
-  title:'',
-  state:'',
-});
-
-const newDoctor = ref<DoctorClass>({
-  name: '',
+  avatar: '',
   idCard: '',
   contact: '',
   department:'',
   title:'',
   state:''
+});
+
+const editedDoctor = ref<EditedDoctorClass>({
+  doctorId: -1,
+  name: '',
+  avatar: '',
+  idCard: '',
+  contact: '',
+  department:'',
+  title:'',
+  state:'',
 });
 
 const getDoctorList = async () => {
@@ -280,11 +295,12 @@ const editRow = (index) => {
   editedDoctor.value = {
     doctorId: tableData.value[index].doctorId,
     name: tableData.value[index].name,
+    avatar: tableData.value[index].avatar,
     idCard: tableData.value[index].idCard,
     contact: tableData.value[index].contact,
     department: tableData.value[index].department,
-	title: tableData.value[index].title,
-	state: tableData.value[index].state,
+    title: tableData.value[index].title,
+    state: tableData.value[index].state,
   };
   editDialogVisible.value = true;//和接口的连接在dialog里
 };
@@ -306,18 +322,18 @@ const submitEditedDoctor = async () => {
         })
     }else{
     try {
-        let param = new FormData();
-        param.append('doctorId', editedDoctor.value.doctorId);//编辑界面不显示id，但是要传id值
-        param.append('name', editedDoctor.value.name);
-        param.append('idCard', editedDoctor.value.idCard);
-        param.append('contact', editedDoctor.value.contact);
-        param.append('department', editedDoctor.value.department);
-		param.append('title', editedDoctor.value.title);
-        fileList.value.forEach((it, index) => {
-            param.append('filename', it.file);
-        });
-        await editAccount(param);
-        //location.reload();//查看返回值的时候先注释掉
+      const param = {
+        doctorId: editedDoctor.value.doctorId, // 编辑界面不显示id，但是要传id值
+        name: editedDoctor.value.name,
+        avatar: editedDoctor.value.avatar,
+        idCard: editedDoctor.value.idCard,
+        contact: editedDoctor.value.contact,
+        department: editedDoctor.value.department,
+        title: editedDoctor.value.title,
+        state: editedDoctor.value.state,
+      };
+      await editAccount(param);
+      //location.reload();//查看返回值的时候先注释掉
     } catch (error) {
       console.error('编辑数据失败：', error);
     }

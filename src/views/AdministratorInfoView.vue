@@ -63,7 +63,7 @@ const isEdit = ref(false); // 编辑状态
 const size = ref('small'); // 描述组件的尺寸
 
 interface AdminClass {
-  adminId: int;//传来的id值是int型的
+  adminId: number;//传来的id值是int型的，number不一定是整数，这个问题以后解决
   name: string;
   contact: string;
 }

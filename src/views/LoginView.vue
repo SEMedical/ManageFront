@@ -30,8 +30,6 @@
 
 <script setup>
 import {reactive, ref} from 'vue';
-import request from '@/util/http';
-import axios from "axios";
 import {changeTheme} from "@/assets/changeTheme";
 import router from "@/router";
 import { useUserStore } from '@/store/user';

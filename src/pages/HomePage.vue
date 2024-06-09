@@ -1,6 +1,5 @@
 <script setup>
 
-import SearchBox from "@/components/SearchBox.vue";
 import LinkButtonWithIcon from "@/components/LinkButtonWithIcon.vue";
 import {changeTheme} from "@/assets/changeTheme";
 import router from "@/router";
@@ -9,12 +8,41 @@ import {onMounted, reactive, ref} from "vue";
 import UserInfoCard from "@/components/UserInfoCard.vue";
 import globalData from "@/global/global"
 import {ElMenuItem, ElMessage, ElSubMenu} from "element-plus";
+import { getInviteCode } from '@/api/invite'
 
 changeTheme("#0093bf")
+const dialogVisible = ref(false);
+const hospitalId = ref(''); // 用于绑定输入框的变量
+const generatedInviteCode = ref(''); // 用于存储生成的邀请码
+const showCode = ref(false); // 控制是否显示邀请码
 
-function loginButtonClicked () {
-    router.push("/login")
-}
+
+
+const handleClose = () => {
+      // 重置输入框和邀请码
+      hospitalId.value = '';
+      generatedInviteCode.value = '';
+      showCode.value = false;
+      dialogVisible.value = false;
+};
+
+const confirmAction = async () => {
+    if (!hospitalId.value) {
+    alert('请先输入医院ID');
+    return;
+    }
+    try {
+        const response = await getInviteCode(hospitalId.value);//这两个不能重名
+        if (response.inviteCode) {
+            generatedInviteCode.value = response.inviteCode; // 存储后端返回的邀请码
+            showCode.value = true; // 显示邀请码
+        } else {
+            alert('生成邀请码失败，请稍后再试或联系管理员');
+        }
+    } catch (error) {
+        console.error('获取邀请码时出错：', error);
+    }
+};
 
 const menuItemClick = (ke) => {
     router.push(ke.index)
@@ -28,11 +56,6 @@ const searchStart = (msg) => {
 const exitButtonClicked = async ()=>{
     await axios.get("/api/Login/Logout")
     window.location.href ="/login";
-}
-
-const notificationButtonClicked = () => {
-    // TODO 不知道要干什么，先写个切换小红点的代码
-    userInfo.unread_notification = !userInfo.unread_notification
 }
 
 const avatarClicked = () =>{
@@ -124,19 +147,30 @@ onMounted(()=>{
 <!--                <SearchBox @searchStart="searchStart"></SearchBox>-->
             </div>
             <div class="rightTitle" v-if="isLogin">
-                <!--
-                <img alt="" src="../assets/titleImg1.png">
-                <LinkButtonWithIcon font-color="#fff" text="消息通知" icon="fi-rr-bell" :has-notification="userInfo.unread_notification" @click="notificationButtonClicked"></LinkButtonWithIcon>
-                 
-                <div class="line">
-                </div>
-                -->
                 <LinkButtonWithIcon font-color="#fff" text="退出" icon="" @click="exitButtonClicked"></LinkButtonWithIcon>
             </div>
             <div class="rightTitle" v-if="!isLogin">
                 <img alt="" src="../assets/titleImg1.png">
 
-                <LinkButtonWithIcon font-color="#fff" text="点击登录" icon="" @click="loginButtonClicked"></LinkButtonWithIcon>
+                <LinkButtonWithIcon font-color="#fff" text="邀请码" icon="" @click="dialogVisible = true"></LinkButtonWithIcon>
+                    <el-dialog
+                    title="输入医院ID生成邀请码"
+                    v-model="dialogVisible"
+                    width="30%"
+                    :before-close="handleClose">
+                    <div class="input-button-container">
+                        <el-input
+                        v-model="hospitalId"
+                        placeholder="请输入医院ID"
+                        suffix-icon="el-icon-check"
+                        @keyup.enter="confirmAction"
+                        />
+                        <el-button type="primary" @click="confirmAction">生成邀请码</el-button>
+                    </div>
+                    <div v-if="showCode" class="code-display">
+                    邀请码: <strong>{{ generatedInviteCode }}</strong>
+                    </div>
+                </el-dialog>
             </div>
         </div>
         <div class="contentHolder">
@@ -169,6 +203,11 @@ onMounted(()=>{
 
 
 <style scoped>
+
+.input-button-container {
+  display: flex;
+  align-items: center; /* 垂直居中对齐 */
+}
 
 .headerHolder{
     width: 100%;
