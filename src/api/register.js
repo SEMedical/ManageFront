@@ -8,6 +8,7 @@ export const adminRegisterAPI = async (userInfo) => {//仅用于管理员注册
 			method: 'POST',
 			data: userInfo,
 		});
+		console.log('adminRegisterAPI', response.success);
 		return response;
 	} catch (error) {
 		console.error('验证失败:', error);
@@ -15,4 +16,4 @@ export const adminRegisterAPI = async (userInfo) => {//仅用于管理员注册
 	}
 };
 
-export default loginAPI;
+export default adminRegisterAPI;
