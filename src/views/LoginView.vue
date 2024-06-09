@@ -68,7 +68,7 @@ const login = async () => {
 		  // 处理响应
 		  if (userStore.userInfo.success) { // success字段表示成功
 			setTimeout(() => {
-				router.push("/")
+				router.push("/home")
 			}, 1000);
 			// 可以在这里进行页面跳转或其他逻辑
 		  } else {

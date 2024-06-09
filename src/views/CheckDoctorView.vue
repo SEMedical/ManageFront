@@ -25,7 +25,7 @@
     <el-table :data="tableData" style="width: 100%;box-shadow: 0 0px 4px rgba(66, 66, 66, 0.2);border-radius: 10px;" max-height="530">
       <el-table-column label="医生ID" prop="doctorId"  align="center"></el-table-column>
       <el-table-column label="姓名" prop="name" align="center"></el-table-column>
-      <el-table-column label="照片" prop="avatar"  align="center"></el-table-column>
+      <el-table-column label="照片" prop="photoPath"  align="center"></el-table-column>
       <el-table-column label="身份证号" prop="idCard"  align="center"></el-table-column>
 	  <el-table-column label="手机号" prop="contact"  align="center"></el-table-column>
       <el-table-column label="职位" prop="title"  align="center"></el-table-column>
@@ -74,8 +74,11 @@
 			<el-option label="禁用" value="禁用"></el-option>
 		  </el-select>
 		</el-form-item>
-        <el-form-item label="原照片">
-          <img :src = "editedDoctor.avatar" style="max-width: 148px; max-height: 148px; border-radius: 5%;" alt="原图片">
+    <el-form-item label="照片">
+		  <el-input v-model="editedDoctor.photoPath"></el-input>
+		</el-form-item>
+        <!--<el-form-item label="原照片">
+          <img :src = "editedDoctor.photoPath" style="max-width: 148px; max-height: 148px; border-radius: 5%;" alt="原图片">
         </el-form-item>
         <el-form-item label="新照片(若新照片为空，保留原图)">
           <el-upload
@@ -89,7 +92,7 @@
             :on-remove="handleRemove"
         ><el-icon><Plus /></el-icon>
         </el-upload>
-        </el-form-item>
+        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="editDialogInvisible">取消</el-button>
@@ -124,13 +127,10 @@
 			<el-option label="全科" value="全科"></el-option>
 		  </el-select>
 		</el-form-item>
-		<el-form-item label="状态">
-		  <el-select v-model="newDoctor.state">
-			<el-option label="正常" value="正常"></el-option>
-			<el-option label="禁用" value="禁用"></el-option>
-		  </el-select>
+    <el-form-item label="照片">
+		  <el-input v-model="newDoctor.photoPath"></el-input>
 		</el-form-item>
-		<el-form-item label="照片">
+		<!--<el-form-item label="照片">
 		  <el-upload
 		    :http-request="httpRequest"
 		    multiple
@@ -142,7 +142,7 @@
 		    :on-remove="handleRemove"
 		><el-icon><Plus /></el-icon>
 		</el-upload>
-		</el-form-item>
+		</el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addDialogInvisible">取消</el-button>
@@ -168,18 +168,17 @@ import { getAccountList, addAccount, editAccount } from '@/api/admin';
 interface NewDoctorClass {
   hospitalId: number;//这个不一定需要，先加着
   name: string;
-  avatar:string;
+  photoPath:string;//先存字符串，以后改成照片
   idCard: string;
   contact: string;
   title: string;
   department: string;
-  state: string;
 }
 
 interface EditedDoctorClass {
   doctorId: number;//传来的id值是int型的，，number不一定是整数，这个问题以后解决
   name: string;
-  avatar: string;
+  photoPath:string;//先存字符串，以后改成照片
   idCard: string;
   contact: string;
   title: string;
@@ -238,20 +237,19 @@ const addDialogInvisible = async() => {
 };
 
 const newDoctor = ref<NewDoctorClass>({
-  hospitalId: -1,
+  hospitalId: 3,//暂时改成默认为3，后面再根据管理员token推出来
   name: '',
-  avatar: '',
+  photoPath: '',
   idCard: '',
   contact: '',
-  department:'',
-  title:'',
-  state:''
+  department:'内分泌科',
+  title:'主任医师',
 });
 
 const editedDoctor = ref<EditedDoctorClass>({
   doctorId: -1,
   name: '',
-  avatar: '',
+  photoPath: '',
   idCard: '',
   contact: '',
   department:'',
@@ -266,7 +264,7 @@ const getDoctorList = async () => {
 			tableDataNoFilt.value.push({
 				doctorId: doctor.doctorId,
 				name: doctor.name,
-				avatar: doctor.photoPath,
+				photoPath: doctor.photoPath,
 				idCard: doctor.idCard,
 				contact: doctor.contact,
 				title: doctor.title,
@@ -295,7 +293,7 @@ const editRow = (index) => {
   editedDoctor.value = {
     doctorId: tableData.value[index].doctorId,
     name: tableData.value[index].name,
-    avatar: tableData.value[index].avatar,
+    photoPath: tableData.value[index].photoPath,
     idCard: tableData.value[index].idCard,
     contact: tableData.value[index].contact,
     department: tableData.value[index].department,
@@ -307,15 +305,27 @@ const editRow = (index) => {
 
 const submitNewDoctor = async() => {
   try {
-      await addAccount(newDoctor.value);//注意：需保证id不能被修改
-       //location.reload();//查看返回值的时候先注释掉
-    } catch (error) {
-      console.error('添加数据失败：', error);
-    }
+    const param = {
+      hospital_id: newDoctor.value.hospitalId,
+      name: newDoctor.value.name,
+      photo_path: newDoctor.value.photoPath,
+      id_card: newDoctor.value.idCard,
+      contact: newDoctor.value.contact,
+      department: newDoctor.value.department,
+      title: newDoctor.value.title,
+    };
+    const response = await addAccount(param);//注意：需保证id不能被修改
+    console.log('message', response);
+    location.reload();//查看返回值的时候先注释掉
+  } catch (error) {
+    console.error('添加数据失败：', error);
+  }
 };
 
 const submitEditedDoctor = async () => {
-    if (!editedDoctor.value.name){
+  
+  
+  if (!editedDoctor.value.name){
       ElMessage({
           type: 'warning',
           message: '医生名不能为空',
@@ -325,15 +335,16 @@ const submitEditedDoctor = async () => {
       const param = {
         doctorId: editedDoctor.value.doctorId, // 编辑界面不显示id，但是要传id值
         name: editedDoctor.value.name,
-        avatar: editedDoctor.value.avatar,
+        photoPath: editedDoctor.value.photoPath,
         idCard: editedDoctor.value.idCard,
         contact: editedDoctor.value.contact,
         department: editedDoctor.value.department,
         title: editedDoctor.value.title,
         state: editedDoctor.value.state,
       };
-      await editAccount(param);
-      //location.reload();//查看返回值的时候先注释掉
+      const response = await editAccount(param);
+      console.log('message', response);
+      location.reload();//查看返回值的时候先注释掉
     } catch (error) {
       console.error('编辑数据失败：', error);
     }

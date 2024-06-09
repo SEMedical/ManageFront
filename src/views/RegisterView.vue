@@ -77,13 +77,7 @@ const onSubmit = async () => {
         return
     } else {
         try {
-            const param = {
-                name: registerCredential.name,
-                contact: registerCredential.contact,
-                password: registerCredential.password,
-                inviteCode: registerCredential.inviteCode,
-            };
-            await adminRegisterAPI(param);
+            await adminRegisterAPI(registerCredential.inviteCode, registerCredential.name, registerCredential.contact, registerCredential.password);
             //location.reload();//查看返回值的时候先注释掉
         } catch (error) {
             console.error('注册失败：', error);

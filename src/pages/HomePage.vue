@@ -5,8 +5,6 @@ import {changeTheme} from "@/assets/changeTheme";
 import router from "@/router";
 import axios from "axios";
 import {onMounted, reactive, ref} from "vue";
-import UserInfoCard from "@/components/UserInfoCard.vue";
-import globalData from "@/global/global"
 import {ElMenuItem, ElMessage, ElSubMenu} from "element-plus";
 import { getInviteCode } from '@/api/invite'
 
@@ -33,8 +31,9 @@ const confirmAction = async () => {
     }
     try {
         const response = await getInviteCode(hospitalId.value);//这两个不能重名
-        if (response.inviteCode) {
-            generatedInviteCode.value = response.inviteCode; // 存储后端返回的邀请码
+        console.log('generatedInviteCode', response.response);
+        if (response.response) {
+            generatedInviteCode.value = response.response; // 存储后端返回的邀请码
             showCode.value = true; // 显示邀请码
         } else {
             alert('生成邀请码失败，请稍后再试或联系管理员');
@@ -48,68 +47,14 @@ const menuItemClick = (ke) => {
     router.push(ke.index)
 }
 
-const searchStart = (msg) => {
-    // TODO 不知道要干什么，先提示一下
-    alert("搜索开始！"+msg)
-}
-
 const exitButtonClicked = async ()=>{
-    await axios.get("/api/Login/Logout")
-    window.location.href ="/login";
-}
-
-const avatarClicked = () =>{
-    if(isLogin.value){
-
-    }else{
-        router.push("/login")
-    }
+    router.push("/")
 }
 
 const menus = [
     {"title":"个人信息","icon":"fi-rr-user-gear","path":"/adminiInfo"},
     {"title":"审核","icon":"fi-rr-memo-circle-check","path":"/qualificationVerify"},
 ];
-
-let userInfo = reactive({
-    data:{
-        user_phone:"",
-        user_name:"未登录",
-        user_id:123456,
-        user_group:"none",
-        avatar_url:"/src/assets/defaultAvatar.png",
-        unread_notification:true,
-        verified: false
-    }
-
-});
-
-const isLogin = ref(false);
-
-axios.get("/api/Administrator/Details").then(async(res) =>{
-    let responseObj = res.json;
-    isLogin.value = responseObj.isLogin;
-    globalData.login = true;
-    globalData.userInfo = {
-        user_id: responseObj.administrator.id,
-        user_name: responseObj.administrator.name,
-        avatar_url: responseObj.administrator.portrait,
-        user_group: "admin"
-    }
-    userInfo.data = globalData.userInfo
-}).catch(error => {
-    if(error.network) return;
-    switch (error.errorCode){
-        case 103:
-            // 管理员没登陆啥都干不了，直接跳到登录界面
-            ElMessage.error("登录状态失效，请重新登录。")
-            router.push("/login");
-            break;
-        default:
-            error.defaultHandler("获取登录状态出错")
-    }
-})
-
 
 const getSidebarPath = () => {
     let path = router.currentRoute.value.path.split("/")
@@ -146,10 +91,8 @@ onMounted(()=>{
                 <img alt="" src="../assets/logo.png">
 <!--                <SearchBox @searchStart="searchStart"></SearchBox>-->
             </div>
-            <div class="rightTitle" v-if="isLogin">
+            <div class="rightTitle" >
                 <LinkButtonWithIcon font-color="#fff" text="退出" icon="" @click="exitButtonClicked"></LinkButtonWithIcon>
-            </div>
-            <div class="rightTitle" v-if="!isLogin">
                 <img alt="" src="../assets/titleImg1.png">
 
                 <LinkButtonWithIcon font-color="#fff" text="邀请码" icon="" @click="dialogVisible = true"></LinkButtonWithIcon>
@@ -176,7 +119,7 @@ onMounted(()=>{
         <div class="contentHolder">
             <div class="sideBar">
                 <div class="userInfoWrapper">
-                    <UserInfoCard :user-info="userInfo.data" showAvatarBorder @click="avatarClicked"></UserInfoCard>
+                    <!--<UserInfoCard :user-info="userInfo.data" showAvatarBorder @click="avatarClicked"></UserInfoCard>-->
                 </div>
 
 

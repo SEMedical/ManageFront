@@ -5,11 +5,11 @@ export const getInviteCode = async (hospitalId) => {
 	try {
         console.log('HospitalId', hospitalId);
 		const response = await request({
-			url: '/oa/GenInviteCode',
+			url: `/oa/GenInviteCode?hospitalId=${encodeURIComponent(hospitalId)}`,
 			method: 'POST',
-			data: hospitalId,
 		});
-		return response.response;
+        console.log('getInviteCode', response);
+		return response;
 	} catch (error) {
 		console.error('验证失败:', error);
 		throw error;

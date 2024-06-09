@@ -14,14 +14,13 @@ export const getAdminInfo = async () => {
 	}
 };
 
-export const editAdminInfo = async (adminInfo) => {
+export const editAdminInfo = async (name, contact) => {
 	try {
+		console.log('editAdminInfo', name, contact);
 		const response = await request({
-			url: '/oa/editAdminInfo',
-			method: 'POST',
-			data: adminInfo,
+			url: `/oa/editAdminInfo?name=${encodeURIComponent(name)}&contact=${encodeURIComponent(contact)}`,
+			method: 'PUT',
 		});
-		console.log('editAdminInfo', response.success);
 		return response.response;
 	} catch (error) {
 		console.error('编辑管理员信息失败:', error);
@@ -35,7 +34,7 @@ export const getAccountList = async () => {
 			url: '/oa/getAccountList',
 			method: 'GET',
 		});
-		console.log(response);
+		console.log('getAccountList', response.response);
 		return response.response;
 	} catch (error) {
 		console.error('获取医生账户列表失败:', error);
@@ -46,13 +45,14 @@ export const getAccountList = async () => {
 
 export const addAccount = async (newDoctor) => {
 	try {
+		console.log('newDoctor', newDoctor);
 		const response = await request({
 			url: '/oa/addAccount',
 			method: 'POST',
 			data: newDoctor,
 		});
 		console.log('addAccount', response.success);
-		return response.response;
+		return response;
 	} catch (error) {
 		console.error('添加医生账户失败:', error);
 		throw error;
@@ -61,13 +61,14 @@ export const addAccount = async (newDoctor) => {
 
 export const editAccount = async (editedDoctor) => {
 	try {
+		console.log('editedDoctor', editedDoctor);
 		const response = await request({
 			url: '/oa/editAccount',
-			method: 'POST',
+			method: 'PUT',
 			data: editedDoctor,
 		});
-		console.log('editAccount', response.success);
-		return response.response;
+		console.log('editAccount', response.message);
+		return response;
 	} catch (error) {
 		console.error('编辑医生账户失败:', error);
 		throw error;

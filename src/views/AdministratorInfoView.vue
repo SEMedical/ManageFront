@@ -105,7 +105,7 @@ const edit = () => {
 
 const save = async () => {
   await submitEditedAdmin();
-  isEdit.value = false;
+  location.reload();//查看返回值的时候先注释掉
 };
 
 const submitEditedAdmin = async () => {
@@ -121,12 +121,7 @@ const submitEditedAdmin = async () => {
         })
     } else {
     try {
-      const param = {
-        adminId: editedAdmin.value.adminId,
-        name: editedAdmin.value.name,
-        contact: editedAdmin.value.contact,
-      };
-      await editAdminInfo(param);
+      await editAdminInfo(editedAdmin.value.name, editedAdmin.value.contact);
       //location.reload();//查看返回值的时候先注释掉
     } catch (error) {
       console.error('编辑管理员信息失败：', error);

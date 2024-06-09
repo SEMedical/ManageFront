@@ -3,9 +3,8 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const httpInstance =axios.create({
-    //baseURL:'http://150.158.93.200:8080/api',//和真的后端连接
 	baseURL:'http://127.0.0.1:4523/m1/3732944-3363746-default/api',//本地mock，记得尾部加api
-    timeout:5000
+  timeout:5000
 })
 
 // 拦截器
@@ -14,7 +13,8 @@ const httpInstance =axios.create({
 httpInstance.interceptors.request.use(config => {
     const token = localStorage.getItem('jwt_token');
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      //config.headers['Authorization'] = `Bearer ${token}`;//用于apifox
+      config.headers['Authorization'] = `${token}`;
     }
     return config
 },e => Promise.reject(e))
