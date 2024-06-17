@@ -18,7 +18,7 @@
         </el-form-item>
         <div class="errorText">{{errorMsg}}</div>
         <div class="textButtonHolder">
-            <router-link to="/login/register">
+            <router-link to="/register">
                 <el-button type="primary" link>注册</el-button>
             </router-link>
         </div>

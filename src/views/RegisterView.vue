@@ -23,7 +23,7 @@
         </el-form-item>
         <div class="errorText">{{ errorMsg }}</div>
         <div class="textButtonHolder">
-            <router-link to="/login">
+            <router-link to="/">
                 <el-button type="primary" link>已有账号?点此登录</el-button>
             </router-link>
         </div>

@@ -3,7 +3,6 @@
 import LinkButtonWithIcon from "@/components/LinkButtonWithIcon.vue";
 import {changeTheme} from "@/assets/changeTheme";
 import router from "@/router";
-import axios from "axios";
 import {onMounted, reactive, ref} from "vue";
 import {ElMenuItem, ElMessage, ElSubMenu} from "element-plus";
 import { getInviteCode } from '@/api/invite'
@@ -52,8 +51,8 @@ const exitButtonClicked = async ()=>{
 }
 
 const menus = [
-    {"title":"个人信息","icon":"fi-rr-user-gear","path":"/adminiInfo"},
-    {"title":"审核","icon":"fi-rr-memo-circle-check","path":"/qualificationVerify"},
+    {"title":"个人信息","icon":"fi-rr-user-gear","path":"/home/adminiInfo"},
+    {"title":"审核","icon":"fi-rr-memo-circle-check","path":"/home/qualificationVerify"},
 ];
 
 const getSidebarPath = () => {
