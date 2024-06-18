@@ -16,7 +16,7 @@
     "@tiptap/pm": "^2.0.3",
     "@tiptap/starter-kit": "^2.0.3",
     "@tiptap/vue-3": "^2.0.3",
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "element-plus": "^2.3.7",
     "pinia": "^2.1.7",
     "unplugin-element-plus": "^0.7.1",
