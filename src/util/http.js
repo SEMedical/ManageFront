@@ -3,7 +3,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const httpInstance =axios.create({
-	baseURL:'http://127.0.0.1:4523/m1/3732944-3363746-default/api',//本地mock，记得尾部加api
+	baseURL:'http://150.158.93.200:8080/api',//本地mock，记得尾部加api
   timeout:5000
 })
 
@@ -19,5 +19,14 @@ httpInstance.interceptors.request.use(config => {
     return config
 },e => Promise.reject(e))
 
+// axios响应式拦截器
+httpInstance.interceptors.response.use(
+    res => {
+        return res.data;
+    },
+    e => {
+        return Promise.reject(e);
+    }
+)
 
 export default httpInstance;

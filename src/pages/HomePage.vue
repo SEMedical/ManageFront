@@ -6,6 +6,7 @@ import router from "@/router";
 import {onMounted, reactive, ref} from "vue";
 import {ElMenuItem, ElMessage, ElSubMenu} from "element-plus";
 import { getInviteCode } from '@/api/invite'
+import {logout} from "../api/login";
 
 changeTheme("#0093bf")
 const dialogVisible = ref(false);
@@ -47,7 +48,12 @@ const menuItemClick = (ke) => {
 }
 
 const exitButtonClicked = async ()=>{
-    router.push("/")
+    try {
+        await logout();
+        await router.push("/")
+    } catch (error) {
+        console.log("登出失败")
+    }
 }
 
 const menus = [
